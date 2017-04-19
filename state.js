@@ -41,7 +41,7 @@ class State {
     }
 
     _updateLeaderboard() {
-        let kernelRepoName = 'Buzz-PHP-Kernel';
+        let kernelRepoName = 'main-repository';
         if (!this.status.hasOwnProperty(kernelRepoName)) {
             throw new Error('no ' + kernelRepoName);
         }

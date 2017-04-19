@@ -3,7 +3,7 @@ const travisState = require('../state.js');
 
 function fakePayload(branch, number, status_message) {
   return { 
-    repository: { name: 'Buzz-PHP-Kernel' },
+    repository: { name: 'main-repository' },
     branch: branch,
     number: number,
     status_message: status_message
