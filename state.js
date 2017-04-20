@@ -1,5 +1,4 @@
 const lodash = require('lodash');
-const logger = require('winston');
 
 class State {
     constructor(status) {
@@ -128,4 +127,4 @@ class State {
     }
 }
 
-module.exports = { 'State': State };
+module.exports = State;

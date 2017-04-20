@@ -1,59 +1,10 @@
-const redis = require('redis');
-const logger = require('winston');
+const fs = require('fs');
 
 const hat = require('./unicornhat.js');
-const travisState = require('./state.js');
+const client = require('./client.js');
+const State = require('./state.js');
 
-const statusCacheRedisKey = 'mc_travis_status';
-
-var redisClient = redis.createClient({ host: config.redis.host });
-redisClient.on("error", function (err) {
-    logger.error(err);
-});
-var travisState = null;
-withPersistence();
-
-function withPersistence(next) {
-    if (!next) {
-        next = function() {};
-    }
-
-    if (!travisState) {
-        redisClient.get(statusCacheRedisKey, function(err, value) {
-            if (err) logger.error(err);
-            let loaded = (value) ? JSON.parse(value) : null;
-            travisState = new travisData.State(loaded);
-            return next();
-        });
-    } else {
-        return next();
-    }
-}
-
-function main(name, payload) {
-    if (!payload) {
-        return;
-    }
-
-    // Webhooks are delivered with a application/x-www-form-urlencoded content type using HTTP POST, 
-    // with the body including a payload parameter that contains the JSON webhook payload in a URL-encoded format.
-    if (!payload.hasOwnProperty('payload')) {
-        return;
-    }
-    payload = payload.payload;
-    if (typeof payload != 'object') {
-        payload = JSON.parse(payload);
-    }
-
-    let state = travisState;
-    if (!state) {
-        state = new travisData.State();
-    }
-    
-    state.update(payload);
-    redisClient.setex(statusCacheRedisKey, 24 * 3600, JSON.stringify(state.dump()));
-    displayMap(state.buildMap());
-}
+const statusCacheKey = 'status_test';
 
 function displayMap(map) {
     hat.reset();
@@ -66,7 +17,30 @@ function displayMap(map) {
     });
     hat.brightness(0.5);
     hat.show();
-    hat.send({ serial: '00000000dd275177' });
+
+    client.send({ type:'unicorn', actions:hat.flush() }, { serial: '00000000dd275177' });
 }
 
-module.exports = { main: main };
+(function() {
+    client.load(statusCacheKey, function(err, data) {
+        if (err) return console.log(err);
+        
+        let payload = JSON.parse(fs.readFileSync('payload.json', { encoding:'utf8' }));
+        if (!payload || !payload.hasOwnProperty('payload')) {
+            return;
+        }
+
+        // Webhooks are delivered with a application/x-www-form-urlencoded content type using HTTP POST, 
+        // with the body including a payload parameter that contains the JSON webhook payload in a URL-encoded format.
+        payload = payload.payload;
+        if (typeof payload != 'object') {
+            payload = JSON.parse(payload);
+        }
+        
+        let state = new State(data);
+        state.update(payload);
+        displayMap(state.buildMap());
+
+        client.save(statusCacheKey, state.dump());
+    })
+})();
