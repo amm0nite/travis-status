@@ -24,13 +24,8 @@ hat.clear = function() {
 }
 
 hat.flush = function(options) {
-    if (state.buffer.length == 0) {
-        return;
-    }
-
     let actions = lodash.cloneDeep(state.buffer);
     hat.reset();
-
     return actions;
 }
 
