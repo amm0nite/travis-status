@@ -40,25 +40,23 @@ class State {
     }
 
     _updateLeaderboard() {
-        let kernelRepoName = 'main-repository';
-        if (!this.status.hasOwnProperty(kernelRepoName)) {
-            throw new Error('no ' + kernelRepoName);
-        }
+        Object.keys(this.status).forEach((repoName) => {
+            let repo = this.status[repoName];
 
-        let kernelRepo = this.status[kernelRepoName];
-        Object.keys(kernelRepo).forEach((branchName) => {
-            let branch = this.status[kernelRepoName][branchName];
-            if (!branch.index) {
-                branch.index = this._getLeaderboardPosition(branch.build);
-            }
-            if (branch.index == -1) {
-                console.log('deleting ' + branchName);
-                delete this.status[kernelRepoName][branchName];
-            }
-            else {
-                this.leaderboard[branch.index].value = branch.status;
-                this.leaderboard[branch.index].score = branch.build;
-            }
+            Object.keys(repo).forEach((branchName) => {
+                let branch = this.status[repoName][branchName];
+                if (!branch.index) {
+                    branch.index = this._getLeaderboardPosition(branch.build);
+                }
+                if (branch.index == -1) {
+                    console.log('deleting ' + branchName);
+                    delete this.status[repoName][branchName];
+                }
+                else {
+                    this.leaderboard[branch.index].value = branch.status;
+                    this.leaderboard[branch.index].score = branch.build;
+                }
+            });
         });
     }
 
