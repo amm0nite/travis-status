@@ -34,10 +34,19 @@ function save(key, value, next) {
     request('/memory/' + key, params, responseHandler(next));
 }
 
-function send(payload, options, next) {
+function send(message, options, next) {
+    if (!options) {
+        options = {};
+    }
+
+    let wrapped = { message: message };
+    if (options.serial) {
+        wrapped.serial = options.serial;
+    }
+
     let params = defaults();
     params.method = 'POST';
-    params.body = payload;
+    params.body = wrapped;
 
     request('/send', params, responseHandler(next));
 }
