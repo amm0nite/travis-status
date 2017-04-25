@@ -1,4 +1,4 @@
-var lodash = require('lodash');
+const lodash = require('lodash');
 
 var state = { buffer: [] };
 var hat = {};
@@ -23,15 +23,10 @@ hat.clear = function() {
     state.buffer.push({ command: 'clear' });
 }
 
-hat.send = function(options) {
-    if (state.buffer.length == 0) {
-        return;
-    }
-
-    let payload = { 'type': 'unicorn', 'actions': lodash.cloneDeep(state.buffer) };
-    downlink.send(payload, options);
-
+hat.flush = function(options) {
+    let actions = lodash.cloneDeep(state.buffer);
     hat.reset();
+    return actions;
 }
 
 module.exports = hat;

@@ -1,0 +1,10 @@
+{
+    "payload": {
+        "repository": {
+            "name": "main-repository"
+        },
+        "branch": "master",
+        "number": 10,
+        "status_message": "Passed"
+    }
+}

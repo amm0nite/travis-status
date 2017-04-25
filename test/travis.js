@@ -1,5 +1,5 @@
 const assert = require('assert');
-const travisState = require('../state.js');
+const State = require('../state.js');
 
 function fakePayload(branch, number, status_message) {
   return { 
@@ -15,7 +15,7 @@ describe('Travis Script', function() {
   it('should display one branch', function() {
     let data = fakePayload('test-branch', 42, 'Pending');
     
-    let state = new travisState.State();
+    let state = new State();
     state.update(data);
     let map = state.buildMap();
 
@@ -28,7 +28,7 @@ describe('Travis Script', function() {
       fakePayload('test-branch-2', 22, 'Passed'),
     ];
     
-    let state = new travisState.State();
+    let state = new State();
     data.forEach(function(payload) {
       state.update(payload);
     });
@@ -44,7 +44,7 @@ describe('Travis Script', function() {
       fakePayload('test-branch-1', 11, 'Passed'),
     ];
     
-    let state = new travisState.State();
+    let state = new State();
     assert.throws(function() {
       data.forEach(function(payload) {
         state.update(payload);
@@ -59,7 +59,7 @@ describe('Travis Script', function() {
       fakePayload('test-branch-1', 22, 'Failed'),
     ];
     
-    let state = new travisState.State();
+    let state = new State();
     data.forEach(function(payload) {
       state.update(payload);
     });
@@ -79,7 +79,7 @@ describe('Travis Script', function() {
     }
     data.push(fakePayload('mybranch', 100, 'Passed'));
 
-    let state = new travisState.State();
+    let state = new State();
     data.forEach(function(payload) {
       state.update(payload);
     });
