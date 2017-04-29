@@ -1,4 +1,4 @@
-const lodash = require('lodash');
+const cloneDeep = require('lodash.clonedeep');
 
 var state = { buffer: [] };
 var hat = {};
@@ -24,7 +24,7 @@ hat.clear = function() {
 }
 
 hat.flush = function(options) {
-    let actions = lodash.cloneDeep(state.buffer);
+    let actions = cloneDeep(state.buffer);
     hat.reset();
     return actions;
 }

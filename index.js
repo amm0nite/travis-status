@@ -1,10 +1,10 @@
 const fs = require('fs');
+const sdk = require('ahst-sdk');
 
 const hat = require('./unicornhat.js');
-const client = require('./client.js');
 const State = require('./state.js');
 
-const statusCacheKey = 'status_test';
+const statusCacheKey = 'cloud_travis_status';
 
 function displayMap(map) {
     hat.reset();
@@ -18,11 +18,11 @@ function displayMap(map) {
     hat.brightness(0.5);
     hat.show();
 
-    client.send({ type:'unicorn', actions:hat.flush() }, { serial: '00000000dd275177' });
+    sdk.mc.send({ type:'unicorn', actions:hat.flush() }, { serial: '00000000dd275177' });
 }
 
 (function() {
-    client.load(statusCacheKey, function(err, data) {
+    sdk.mc.load(statusCacheKey, function(err, data) {
         if (err) return console.log(err);
         
         let payload = JSON.parse(fs.readFileSync('payload.json', { encoding:'utf8' }));
@@ -41,6 +41,6 @@ function displayMap(map) {
         state.update(payload);
         displayMap(state.buildMap());
 
-        client.save(statusCacheKey, state.dump());
-    })
+        sdk.mc.save(statusCacheKey, state.dump());
+    });
 })();

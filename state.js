@@ -1,11 +1,12 @@
-const lodash = require('lodash');
+const isObject = require('lodash.isobject');
+const cloneDeep = require('lodash.clonedeep');
 
 class State {
     constructor(status) {
         this.size = { w:8, h:4 };
         this.status = {};
-        if (lodash.isObject(status)) {
-            this.status = lodash.cloneDeep(status);
+        if (isObject(status)) {
+            this.status = cloneDeep(status);
         }
         this.leaderboard = [];
         for (let i=0; i<(this.size.w * this.size.h); i++) {
@@ -84,7 +85,7 @@ class State {
     }
 
     dump() {
-        return lodash.cloneDeep(this.status);
+        return cloneDeep(this.status);
     }
 
     _statusColor(status) {
