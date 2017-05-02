@@ -10,12 +10,22 @@ function fakePayload(branch, number, status_message) {
   };
 }
 
+function loadState(state) {
+  if (!state) {
+    state = new State();
+  } else {
+    state = new State(state.dump());
+  }
+  return state;
+}
+
 describe('Travis Script', function() {
   
   it('should display one branch', function() {
     let data = fakePayload('test-branch', 42, 'Pending');
     
-    let state = new State();
+    let state = null;
+    state = loadState(state);
     state.update(data);
     let map = state.buildMap();
 
@@ -28,8 +38,9 @@ describe('Travis Script', function() {
       fakePayload('test-branch-2', 22, 'Passed'),
     ];
     
-    let state = new State();
+    let state = null;
     data.forEach(function(payload) {
+      state = loadState(state);
       state.update(payload);
     });
     let map = state.buildMap();
@@ -42,18 +53,22 @@ describe('Travis Script', function() {
     let data = [
       fakePayload('dev-branch', 11, 'Pending'),
       fakePayload('dev-branch', 22, 'Passed'),
+      fakePayload('prod-branch', 12, 'Failed'),
     ];
     data[0].repository.name = 'repo_one';
     data[1].repository.name = 'repo_two';
+    data[2].repository.name = 'repo_one';
 
-    let state = new State();
+    let state = null;
     data.forEach(function(payload) {
+      state = loadState(state);
       state.update(payload);
     });
     let map = state.buildMap();
 
     assert.deepEqual(map[0], { x:0, y:0, color: { r:255, g:255, b:0 } });
     assert.deepEqual(map[1], { x:1, y:0, color: { r:0, g:255, b:0 } });
+    assert.deepEqual(map[2], { x:2, y:0, color: { r:255, g:0, b:0 } });
   });
 
   it('should ignore hooks from older builds', function() {
@@ -62,9 +77,10 @@ describe('Travis Script', function() {
       fakePayload('test-branch-1', 11, 'Passed'),
     ];
     
-    let state = new State();
+    let state = null;
     assert.throws(function() {
       data.forEach(function(payload) {
+        state = loadState(state);
         state.update(payload);
       });
     }, 'build is old');
@@ -77,8 +93,9 @@ describe('Travis Script', function() {
       fakePayload('test-branch-1', 22, 'Failed'),
     ];
     
-    let state = new State();
+    let state = null;
     data.forEach(function(payload) {
+      state = loadState(state);
       state.update(payload);
     });
     let map = state.buildMap();
@@ -97,8 +114,9 @@ describe('Travis Script', function() {
     }
     data.push(fakePayload('mybranch', 100, 'Passed'));
 
-    let state = new State();
+    let state = null;
     data.forEach(function(payload) {
+      state = loadState(state);
       state.update(payload);
     });
     let map = state.buildMap();

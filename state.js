@@ -15,6 +15,12 @@ class State {
     }
 
     update(data) {
+        this._refreshLeaderboard();
+        let branch = this._importBranch(data);
+        this._processBranch(branch);
+    }
+
+    _importBranch(data) {
         if (!data.repository) {
             throw new Error('no repository');
         }
@@ -37,10 +43,10 @@ class State {
         }
         this.status[repo][branch].status = data.status_message;
 
-        this._updateLeaderboard();
+        return this.status[repo][branch];
     }
 
-    _updateLeaderboard() {
+    _refreshLeaderboard() {
         Object.keys(this.status).forEach((repoName) => {
             let repo = this.status[repoName];
 
@@ -49,20 +55,24 @@ class State {
                 branch.index = parseInt(branch.index);
                 branch.build = parseInt(branch.build);
 
-                if (!branch.index && branch.index !== 0) {
-                    branch.index = this._getLeaderboardPosition(branch.build);
-                }
-                
-                if (branch.index == -1) {
-                    console.log('deleting ' + branchName);
-                    delete this.status[repoName][branchName];
-                }
-                else {
-                    this.leaderboard[branch.index].value = branch.status;
-                    this.leaderboard[branch.index].score = branch.build;
-                }
+                this._processBranch(branch);
             });
         });
+    }
+
+    _processBranch(branch) {
+        if (!branch.index && branch.index !== 0) {
+            branch.index = this._getLeaderboardPosition(branch.build);
+        }
+        
+        if (branch.index == -1) {
+            console.log('deleting ' + branchName);
+            delete this.status[repoName][branchName];
+        }
+        else {
+            this.leaderboard[branch.index].value = branch.status;
+            this.leaderboard[branch.index].score = branch.build;
+        }
     }
 
     _getLeaderboardPosition(score) {
