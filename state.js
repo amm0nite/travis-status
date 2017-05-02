@@ -49,7 +49,7 @@ class State {
                 branch.index = parseInt(branch.index);
                 branch.build = parseInt(branch.build);
 
-                if (!branch.index) {
+                if (!branch.index && branch.index !== 0) {
                     branch.index = this._getLeaderboardPosition(branch.build);
                 }
                 
