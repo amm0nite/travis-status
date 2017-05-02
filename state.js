@@ -30,7 +30,7 @@ class State {
         }
 
         if (!this.status[repo][branch].build || data.number > this.status[repo][branch].build) {
-            this.status[repo][branch].build = data.number;
+            this.status[repo][branch].build = parseInt(data.number);
         }
         if (data.number < this.status[repo][branch].build) {
             throw new Error('build is old');
@@ -46,9 +46,13 @@ class State {
 
             Object.keys(repo).forEach((branchName) => {
                 let branch = this.status[repoName][branchName];
+                branch.index = parseInt(branch.index);
+                branch.build = parseInt(branch.build);
+
                 if (!branch.index) {
                     branch.index = this._getLeaderboardPosition(branch.build);
                 }
+                
                 if (branch.index == -1) {
                     console.log('deleting ' + branchName);
                     delete this.status[repoName][branchName];

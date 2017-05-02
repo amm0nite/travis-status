@@ -38,6 +38,24 @@ describe('Travis Script', function() {
     assert.deepEqual(map[1], { x:1, y:0, color: { r:0, g:255, b:0 } });
   });
 
+  it('should display two branches from different repos', function() {
+    let data = [
+      fakePayload('dev-branch', 11, 'Pending'),
+      fakePayload('dev-branch', 22, 'Passed'),
+    ];
+    data[0].repository.name = 'repo_one';
+    data[1].repository.name = 'repo_two';
+
+    let state = new State();
+    data.forEach(function(payload) {
+      state.update(payload);
+    });
+    let map = state.buildMap();
+
+    assert.deepEqual(map[0], { x:0, y:0, color: { r:255, g:255, b:0 } });
+    assert.deepEqual(map[1], { x:1, y:0, color: { r:0, g:255, b:0 } });
+  });
+
   it('should ignore hooks from older builds', function() {
     let data = [
       fakePayload('test-branch-1', 22, 'Pending'),
