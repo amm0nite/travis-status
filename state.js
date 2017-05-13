@@ -17,7 +17,7 @@ class State {
     update(data) {
         this._refreshLeaderboard();
         let branch = this._importBranch(data);
-        this._processBranch(branch);
+        this._processBranch(branch, true);
     }
 
     _importBranch(data) {
@@ -53,26 +53,25 @@ class State {
             Object.keys(repo).forEach((branchName) => {
                 let branch = this.status[repoName][branchName];
                 branch.build = parseInt(branch.build);
+                branch.index = parseInt(branch.index);
 
-                delete branch['index'];
-                this._processBranch(branch);
+                this._processBranch(branch, false);
             });
         });
     }
 
-    _processBranch(branch) {
-        if (!branch.index && branch.index !== 0) {
-            branch.index = this._getLeaderboardPosition(branch.build);
-        }
-        
-        if (branch.index == -1) {
+    _processBranch(branch, replace) {
+        let index = (branch.index) ? branch.index : this._getLeaderboardPosition(branch.build);
+
+        if (index == -1 || (this.leaderboard[index].value && !replace)) {
             console.log('deleting ' + branchName);
             delete this.status[repoName][branchName];
+            return;
         }
-        else {
-            this.leaderboard[branch.index].value = branch.status;
-            this.leaderboard[branch.index].score = branch.build;
-        }
+
+        branch.index = index;
+        this.leaderboard[branch.index].value = branch.status;
+        this.leaderboard[branch.index].score = branch.build;
     }
 
     _getLeaderboardPosition(score) {
