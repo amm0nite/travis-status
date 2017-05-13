@@ -52,9 +52,9 @@ class State {
 
             Object.keys(repo).forEach((branchName) => {
                 let branch = this.status[repoName][branchName];
-                branch.index = parseInt(branch.index);
                 branch.build = parseInt(branch.build);
 
+                delete branch['index'];
                 this._processBranch(branch);
             });
         });
